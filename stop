@@ -1,0 +1,3 @@
+#!/bin/sh
+
+test -f ./pid && kill `cat ./pid`
