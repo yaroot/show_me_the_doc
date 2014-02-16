@@ -2,3 +2,5 @@ flask
 gunicorn
 flask-autoindex
 markdown2
+textile
+docutils
