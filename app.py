@@ -9,6 +9,7 @@ from flask import Flask, request, make_response
 from flask.ext.autoindex import AutoIndex
 import markdown2
 from docutils.core import publish_string
+from textile import textile
 
 _REPO_DIR = os.path.join(os.environ['HOME'], 'repos')
 
@@ -22,6 +23,9 @@ def render_markdown(content):
 def render_rst(content):
     return publish_string(source=content, writer_name='html4css1')
 
+def render_textile(content):
+    return textile(content, html_type='html')
+
 renderers = [
     {
         'ext': ['md', 'mkd', 'markdown'],
@@ -30,6 +34,10 @@ renderers = [
     {
         'ext': ['rst'],
         'render_func': render_rst,
+    },
+    {
+        'ext': ['textile'],
+        'render_func': render_textile,
     },
 ]
 
