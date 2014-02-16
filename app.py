@@ -67,6 +67,12 @@ def read_file(fp):
             return f.read()
 
 
+mime_types = {
+    '.html': 'text/html',
+    '.css': 'text/css',
+    '.js': 'text/javascript',
+}
+
 @app.route('/', defaults={'path':'.'})
 @app.route('/<path:path>')
 def show_me_the_doc(path):
@@ -80,9 +86,16 @@ def show_me_the_doc(path):
             raw = 'raw' in request.args
             content = read_file(abspath)
 
-            is_html = abspath.lower().endswith('.html')
-            if is_html and not raw:
-                return content
+            mimetype = None
+            for ext, mime in mime_types.items():
+                if abspath.lower().endswith(ext):
+                    mimetype = mime
+                    break
+
+            if not raw and mimetype is not None:
+                resp = make_response(content)
+                resp.mimetype = mime
+                return resp
             elif raw or render_func is None:
                 resp = make_response(content)
                 if type(content) == unicode:
