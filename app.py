@@ -18,6 +18,7 @@ HOME = os.environ['HOME']
 autoindex = AutoIndex(app, _REPO_DIR, add_url_rules=False)
 
 markdown_extensions = [
+    'code-friendly',
     'fenced-code-blocks',
     'footnotes'
     'header-ids',
