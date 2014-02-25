@@ -17,8 +17,17 @@ app = Flask(__name__)
 HOME = os.environ['HOME']
 autoindex = AutoIndex(app, _REPO_DIR, add_url_rules=False)
 
+markdown_extensions = [
+    'fenced-code-blocks',
+    'footnotes'
+    'header-ids',
+    'metadata',
+    'nofollow',
+    'smarty-pants',
+    'wiki-tables',
+]
 def render_markdown(content):
-    return markdown2.markdown(content)
+    return markdown2.markdown(content, extras=markdown_extensions)
 
 def render_rst(content):
     return publish_string(source=content, writer_name='html4css1')
