@@ -24,8 +24,10 @@ markdown_extensions = [
     'metadata',
     'nofollow',
     'smarty-pants',
+    'toc',
     'wiki-tables',
 ]
+
 def render_markdown(content):
     return markdown2.markdown(content, extras=markdown_extensions)
 
