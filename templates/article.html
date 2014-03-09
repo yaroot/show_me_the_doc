@@ -1,0 +1,24 @@
+{# vim: set ft=jinja: #}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset=utf-8>
+        <link href="//oss.maxcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+        <style type='text/css'>
+            article {
+                width: 800px;
+                margin: auto;
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <article>
+
+            {{ article | safe }}
+
+        </article>
+    </body>
+</html>

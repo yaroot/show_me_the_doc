@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 
 import os
 import codecs
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, render_template
 from flask.ext.autoindex import AutoIndex
 import markdown2
 from docutils.core import publish_string
@@ -117,7 +117,7 @@ def show_me_the_doc(path):
                 return resp
             else:
                 rendered = render_func(content)
-                return rendered
+                return render_template('article.html', article=rendered)
     else:
         return '<h1>NOTHING TO SEE HERE</h1>', 404
 
