@@ -5,7 +5,7 @@ pid_file='./pid'
 gunicorn \
     --worker-class sync \
     --workers 2 \
-    --bind 0.0.0.0:8100 \
+    --bind 127.0.0.1:8100 \
     --max-requests 100 \
     --backlog 25 \
     --name show_me_the_doc \
