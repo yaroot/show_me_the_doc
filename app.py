@@ -10,6 +10,7 @@ from flask.ext.autoindex import AutoIndex
 import markdown2
 from docutils.core import publish_string
 from textile import textile
+from mediawiki import wiki2html
 
 _REPO_DIR = os.path.join(os.environ['HOME'], 'repos')
 
@@ -38,6 +39,9 @@ def render_rst(content):
 def render_textile(content):
     return textile(content, html_type='html')
 
+def render_mediawiki(content):
+    return wiki2html(content, True)
+
 renderers = [
     {
         'ext': ['md', 'mkd', 'markdown'],
@@ -50,6 +54,10 @@ renderers = [
     {
         'ext': ['textile'],
         'render_func': render_textile,
+    },
+    {
+        'ext': ['mediawiki', 'wiki'],
+        'render_func': render_mediawiki,
     },
 ]
 

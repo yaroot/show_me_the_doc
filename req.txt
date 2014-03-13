@@ -4,3 +4,4 @@ flask-autoindex
 markdown2
 textile
 docutils
+mediawiki
