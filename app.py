@@ -124,10 +124,15 @@ def show_me_the_doc(path):
         else:
             raw = 'raw' in request.args
 
-            render_func = get_doc_render_func(abspath)
+            doc_renderer = get_doc_render_func(abspath)
             content = read_file(abspath)
 
             mimetype = guess_mime_type(abspath)
+
+            if raw:
+                return render_raw(content, mimetype)
+
+
 
             if not raw and mimetype is not None:
                 resp = make_response(content)
