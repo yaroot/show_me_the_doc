@@ -67,7 +67,7 @@ def test_exts(path, exts):
             return True
     return False
 
-def get_doc_render_func(path):
+def get_doc_renderer(path):
     renderer = None
     for r in doc_renderers:
         if test_exts(path.lower(), r['ext']):
@@ -124,7 +124,7 @@ def show_me_the_doc(path):
         else:
             raw = 'raw' in request.args
 
-            doc_renderer = get_doc_render_func(abspath)
+            doc_renderer = get_doc_renderer(abspath)
             content = read_file(abspath)
 
             mimetype = guess_mime_type(abspath)
