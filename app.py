@@ -93,15 +93,23 @@ mime_types = {
     '.js': 'text/javascript',
 }
 
+
+def guess_mime_type(path)
+    for ext, mime in mime_types.items():
+        if path.lower().endswith(ext):
+            return mime
+    return None
+
+
 def render_raw(content, mimetype):
     resp = make_response(content)
-    if mimetype is None:
+    if mimetype is not None:
+        resp.mimetype = mimetype
+    else:
         if type(content) == unicode:
             resp.mimetype = 'text/plain'
         else:
             resp.mimetype = ''
-    else:
-        resp.mimetype = mimetype
     return resp
 
 
@@ -119,11 +127,7 @@ def show_me_the_doc(path):
             render_func = get_doc_render_func(abspath)
             content = read_file(abspath)
 
-            mimetype = None
-            for ext, mime in mime_types.items():
-                if abspath.lower().endswith(ext):
-                    mimetype = mime
-                    break
+            mimetype = guess_mime_type(abspath)
 
             if not raw and mimetype is not None:
                 resp = make_response(content)
