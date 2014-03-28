@@ -42,7 +42,7 @@ def render_textile(content):
 def render_mediawiki(content):
     return wiki2html(content, True)
 
-renderers = [
+doc_renderers = [
     {
         'ext': ['md', 'mkd', 'markdown'],
         'render_func': render_markdown,
@@ -67,9 +67,9 @@ def test_exts(path, exts):
             return True
     return False
 
-def get_render_func(path):
+def get_doc_render_func(path):
     renderer = None
-    for r in renderers:
+    for r in doc_renderers:
         if test_exts(path.lower(), r['ext']):
             renderer = r
             break
@@ -93,6 +93,18 @@ mime_types = {
     '.js': 'text/javascript',
 }
 
+def render_raw(content, mimetype):
+    resp = make_response(content)
+    if mimetype is None:
+        if type(content) == unicode:
+            resp.mimetype = 'text/plain'
+        else:
+            resp.mimetype = ''
+    else:
+        resp.mimetype = mimetype
+    return resp
+
+
 @app.route('/', defaults={'path':'.'})
 @app.route('/<path:path>')
 def show_me_the_doc(path):
@@ -102,8 +114,9 @@ def show_me_the_doc(path):
         if os.path.isdir(abspath):
             return autoindex.render_autoindex(path=mdfile, endpoint='.show_me_the_doc')
         else:
-            render_func = get_render_func(abspath)
             raw = 'raw' in request.args
+
+            render_func = get_doc_render_func(abspath)
             content = read_file(abspath)
 
             mimetype = None
