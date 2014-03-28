@@ -12,6 +12,7 @@ from flask.ext.autoindex import AutoIndex
 import pygments
 import pygments.lexers
 import pygments.formatters
+import pygments.styles
 
 import markdown2
 from docutils.core import publish_string
@@ -26,7 +27,8 @@ autoindex = AutoIndex(app, _REPO_DIR, add_url_rules=False)
 
 default_encoding = 'utf-8'
 
-pygments_html_formatter = pygments.formatters.HtmlFormatter(noclasses=False, filenos=True, full=True)
+pygments_style = pygments.styles.get_style_by_name('pastie')
+pygments_html_formatter = pygments.formatters.HtmlFormatter(filenos=True, full=True, style=pygments_style)
 
 markdown_extensions = [
     'code-friendly',
@@ -77,8 +79,10 @@ def get_ext(path):
     if i >= 0:
         return path[i+1:]
 
+
 def get_basename(path):
     return os.path.basename(path)
+
 
 def test_exts(path, exts):
     ext = get_ext(path)
