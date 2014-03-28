@@ -12,7 +12,7 @@ from docutils.core import publish_string
 from textile import textile
 from mediawiki import wiki2html
 
-_REPO_DIR = os.path.join(os.environ['HOME'], '.local', 'docs')
+_REPO_DIR = os.environ.get('DOCUMENT_BASE', os.path.join(os.environ['HOME'], '.local', 'docs'))
 
 app = Flask(__name__)
 HOME = os.environ['HOME']
