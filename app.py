@@ -27,7 +27,7 @@ autoindex = AutoIndex(app, _REPO_DIR, add_url_rules=False)
 
 default_encoding = 'utf-8'
 
-pygments_style = pygments.styles.get_style_by_name('pastie')
+pygments_style = pygments.styles.get_style_by_name('borland')
 pygments_html_formatter = pygments.formatters.HtmlFormatter(filenos=True, full=True, style=pygments_style)
 
 markdown_extensions = [
