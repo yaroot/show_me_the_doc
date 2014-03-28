@@ -61,22 +61,32 @@ doc_renderers = [
     },
 ]
 
+
+def get_ext(path):
+    i = path.rfind('.')
+    if i >= 0:
+        return path[i+1:]
+
+
 def test_exts(path, exts):
-    for ext in exts:
-        if path.endswith('.%s' % ext):
-            return True
+    ext = get_ext(path)
+    if ext is not None:
+        for e in exts:
+            if ext == e:
+                return True
     return False
 
-def get_doc_renderer(path):
-    renderer = None
-    for r in doc_renderers:
-        if test_exts(path.lower(), r['ext']):
-            renderer = r
-            break
-    if renderer is not None:
-        render_func = renderer['render_func']
-        return render_func
-    return None
+
+def get_doc_render_func(path):
+    for renderer in doc_renderers:
+        if test_exts(path.lower(), renderer['ext']):
+            return renderer.get('render_func')
+
+
+def get_source_render_func(path):
+    ext = get_ext(path)
+    if ext is None:
+        return None
 
 def read_file(fp):
     try:
@@ -98,7 +108,6 @@ def guess_mime_type(path)
     for ext, mime in mime_types.items():
         if path.lower().endswith(ext):
             return mime
-    return None
 
 
 def render_raw(content, mimetype):
@@ -113,6 +122,11 @@ def render_raw(content, mimetype):
     return resp
 
 
+def render_doc(content, render_func):
+    article = render_func(content)
+    return render_template('article.html', article=article)
+
+
 @app.route('/', defaults={'path':'.'})
 @app.route('/<path:path>')
 def show_me_the_doc(path):
@@ -123,16 +137,17 @@ def show_me_the_doc(path):
             return autoindex.render_autoindex(path=mdfile, endpoint='.show_me_the_doc')
         else:
             raw = 'raw' in request.args
-
-            doc_renderer = get_doc_renderer(abspath)
             content = read_file(abspath)
-
             mimetype = guess_mime_type(abspath)
+
+            doc_render_func = get_doc_render_func(abspath)
+            source_render_func = get_source_render_func(abspath)
 
             if raw:
                 return render_raw(content, mimetype)
-
-
+            elif doc_render_func is not None:
+                return render_doc(content, doc_render_func)
+            elif 
 
             if not raw and mimetype is not None:
                 resp = make_response(content)
@@ -148,6 +163,7 @@ def show_me_the_doc(path):
             else:
                 rendered = render_func(content)
                 return render_template('article.html', article=rendered)
+
     else:
         return '<h1>NOTHING TO SEE HERE</h1>', 404
 
