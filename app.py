@@ -5,8 +5,14 @@ from __future__ import unicode_literals
 
 import os
 import codecs
+
 from flask import Flask, request, make_response, render_template
 from flask.ext.autoindex import AutoIndex
+
+import pygments
+import pygments.lexers
+import pygments.formatters
+
 import markdown2
 from docutils.core import publish_string
 from textile import textile
@@ -17,6 +23,10 @@ _REPO_DIR = os.environ.get('DOCUMENT_BASE', os.path.join(os.environ['HOME'], '.l
 app = Flask(__name__)
 HOME = os.environ['HOME']
 autoindex = AutoIndex(app, _REPO_DIR, add_url_rules=False)
+
+default_encoding = 'utf-8'
+
+pygments_html_formatter = pygments.formatters.HtmlFormatter(noclasses=False, filenos=True, full=True)
 
 markdown_extensions = [
     'code-friendly',
@@ -67,6 +77,8 @@ def get_ext(path):
     if i >= 0:
         return path[i+1:]
 
+def get_basename(path):
+    return os.path.basename(path)
 
 def test_exts(path, exts):
     ext = get_ext(path)
@@ -83,14 +95,17 @@ def get_doc_render_func(path):
             return renderer.get('render_func')
 
 
-def get_source_render_func(path):
-    ext = get_ext(path)
-    if ext is None:
-        return None
+def get_pygments_lexer(path, **options):
+    filename = get_basename(path)
+    try:
+        return pygments.lexers.get_lexer_for_filename(filename, **options)
+    except pygments.util.ClassNotFound, e:
+        pass
+
 
 def read_file(fp):
     try:
-        with codecs.open(fp, encoding='utf-8') as f:
+        with codecs.open(fp, encoding=default_encoding) as f:
             return f.read()
     except:
         with open(fp, mode='rb') as f:
@@ -104,7 +119,7 @@ mime_types = {
 }
 
 
-def guess_mime_type(path)
+def guess_mime_type(path):
     for ext, mime in mime_types.items():
         if path.lower().endswith(ext):
             return mime
@@ -127,45 +142,34 @@ def render_doc(content, render_func):
     return render_template('article.html', article=article)
 
 
+def render_source(content, lexer):
+    return pygments.highlight(content, lexer, pygments_html_formatter)
+
+
 @app.route('/', defaults={'path':'.'})
 @app.route('/<path:path>')
 def show_me_the_doc(path):
     mdfile = path
     abspath = os.path.join(_REPO_DIR, mdfile)
-    if os.path.exists(abspath):
-        if os.path.isdir(abspath):
-            return autoindex.render_autoindex(path=mdfile, endpoint='.show_me_the_doc')
-        else:
-            raw = 'raw' in request.args
-            content = read_file(abspath)
-            mimetype = guess_mime_type(abspath)
-
-            doc_render_func = get_doc_render_func(abspath)
-            source_render_func = get_source_render_func(abspath)
-
-            if raw:
-                return render_raw(content, mimetype)
-            elif doc_render_func is not None:
-                return render_doc(content, doc_render_func)
-            elif 
-
-            if not raw and mimetype is not None:
-                resp = make_response(content)
-                resp.mimetype = mime
-                return resp
-            elif raw or render_func is None:
-                resp = make_response(content)
-                if type(content) == unicode:
-                    resp.mimetype = 'text/plain'
-                else:
-                    resp.mimetype = ''
-                return resp
-            else:
-                rendered = render_func(content)
-                return render_template('article.html', article=rendered)
-
-    else:
+    if not os.path.exists(abspath):
         return '<h1>NOTHING TO SEE HERE</h1>', 404
+
+    if os.path.isdir(abspath):
+        return autoindex.render_autoindex(path=mdfile, endpoint='.show_me_the_doc')
+
+    raw = 'raw' in request.args
+    content = read_file(abspath)
+    mimetype = guess_mime_type(abspath)
+
+    doc_render_func = get_doc_render_func(abspath)
+    pygments_lexer = get_pygments_lexer(abspath, encoding=default_encoding)
+
+    if raw:
+        return render_raw(content, mimetype)
+    elif doc_render_func is not None:
+        return render_doc(content, doc_render_func)
+    elif pygments_lexer is not None:
+        return render_source(content, pygments_lexer)
 
 
 if __name__ == '__main__':
