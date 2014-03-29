@@ -1,1 +1,1 @@
-Poor man's doc viewer using flask, python-markdown2 and flask-autoindex.
+Poor man's doc viewer built with flask, pygments and other libraries.
