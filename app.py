@@ -168,7 +168,7 @@ def show_me_the_doc(path):
     doc_render_func = get_doc_render_func(abspath)
     pygments_lexer = get_pygments_lexer(abspath, encoding=default_encoding)
 
-    if raw:
+    if raw or mimetype is not None:
         return render_raw(content, mimetype)
     elif doc_render_func is not None:
         return render_doc(content, doc_render_func)
