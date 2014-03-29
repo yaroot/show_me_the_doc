@@ -5,3 +5,4 @@ markdown2
 textile
 docutils
 mediawiki
+pygments
