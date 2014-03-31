@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import os
 import codecs
 
-from flask import Flask, request, make_response, render_template
+from flask import Flask, request, make_response, render_template, send_file
 from flask.ext.autoindex import AutoIndex
 
 import pygments
@@ -116,29 +116,18 @@ def read_file(fp):
             return f.read()
 
 
-mime_types = {
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'text/javascript',
-}
+static_file_exts = [
+    '.html',
+    '.css',
+    '.js',
+]
 
 
-def guess_mime_type(path):
-    for ext, mime in mime_types.items():
+def is_static_file(path):
+    for ext in static_file_exts:
         if path.lower().endswith(ext):
-            return mime
-
-
-def render_raw(content, mimetype):
-    resp = make_response(content)
-    if mimetype is not None:
-        resp.mimetype = mimetype
-    else:
-        if type(content) == unicode:
-            resp.mimetype = 'text/plain'
-        else:
-            resp.mimetype = ''
-    return resp
+            return True
+    return False
 
 
 def render_doc(content, render_func):
@@ -161,15 +150,20 @@ def show_me_the_doc(path):
     if os.path.isdir(abspath):
         return autoindex.render_autoindex(path=mdfile, endpoint='.show_me_the_doc')
 
-    raw = 'raw' in request.args
     content = read_file(abspath)
-    mimetype = guess_mime_type(abspath)
+    is_static = is_static_file(abspath)
 
     doc_render_func = get_doc_render_func(abspath)
     pygments_lexer = get_pygments_lexer(abspath, encoding=default_encoding)
 
-    if raw or mimetype is not None:
-        return render_raw(content, mimetype)
+    should_render_raw = 'raw' in request.args
+    if type(content) != unicode:
+        should_render_raw = True
+    if is_static:
+        should_render_raw = True
+
+    if should_render_raw:
+        return send_file(abspath)
     elif doc_render_func is not None:
         return render_doc(content, doc_render_func)
     elif pygments_lexer is not None:
