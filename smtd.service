@@ -1,0 +1,8 @@
+[Unit]
+Description=Show me the doc
+
+[Service]
+ExecStart=/path/to/show_me_the_doc/start
+
+[Install]
+WantedBy=multi-user.target

@@ -1,18 +1,18 @@
 #!/bin/sh
 
-pushd $(realpath `dirname $0`)
+pushd $(realpath `dirname $0`) > /dev/null
 
 test -d venv && source venv/bin/activate
 
 pid_file='./pid'
 
-gunicorn \
+exec gunicorn \
     --worker-class sync \
     --workers 2 \
     --bind 127.0.0.1:8100 \
     --max-requests 100 \
     --backlog 25 \
     --name show_me_the_doc \
-    --daemon \
     --pid $pid_file \
     app:app
+    # --daemon \
