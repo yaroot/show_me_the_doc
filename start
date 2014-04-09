@@ -1,5 +1,9 @@
 #!/bin/sh
 
+pushd $(realpath `dirname $0`)
+
+test -d venv && source venv/bin/activate
+
 pid_file='./pid'
 
 gunicorn \
