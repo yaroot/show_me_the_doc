@@ -11,11 +11,12 @@ from flask.ext.autoindex import AutoIndex
 
 import pygments
 import pygments.lexers
+import pygments.lexers.special
 import pygments.formatters
 import pygments.styles
 
 import markdown2
-from docutils.core import publish_string
+from docutils.core import publish_string as rst_publish_string
 from textile import textile
 from mediawiki import wiki2html
 
@@ -46,7 +47,7 @@ def render_markdown(content):
     return markdown2.markdown(content, extras=markdown_extensions)
 
 def render_rst(content):
-    return publish_string(source=content, writer_name='html4css1')
+    return rst_publish_string(source=content, writer_name='html4css1')
 
 def render_textile(content):
     return textile(content, html_type='html')
@@ -157,9 +158,12 @@ def show_me_the_doc(path):
     pygments_lexer = get_pygments_lexer(abspath, encoding=default_encoding)
 
     should_render_raw = 'raw' in request.args
-    if type(content) != unicode:
-        should_render_raw = True
-    if is_static:
+    is_unicode = type(content) == unicode
+
+    if not pygments_lexer and is_unicode:
+        pygments_lexer = pygments.lexers.special.TextLexer(encoding=default_encoding)
+
+    if not is_unicode or is_static:
         should_render_raw = True
 
     if should_render_raw:
@@ -168,7 +172,8 @@ def show_me_the_doc(path):
         return render_doc(content, doc_render_func)
     elif pygments_lexer is not None:
         return render_source(content, pygments_lexer)
-
+    else:
+        send_file(abspath)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8100, debug=True, use_debugger=True)
