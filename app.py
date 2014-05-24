@@ -20,10 +20,10 @@ from docutils.core import publish_string as rst_publish_string
 from textile import textile
 from mediawiki import wiki2html
 
-_REPO_DIR = os.environ.get('DOCUMENT_BASE', os.path.join(os.environ['HOME'], '.local', 'docs'))
 
 app = Flask(__name__)
 HOME = os.environ['HOME']
+_REPO_DIR = os.environ.get('DOCUMENT_BASE', os.path.join(HOME, '.local', 'docs'))
 autoindex = AutoIndex(app, _REPO_DIR, add_url_rules=False)
 
 default_encoding = 'utf-8'
