@@ -22,8 +22,11 @@ from mediawiki import wiki2html
 
 
 app = Flask(__name__)
-HOME = os.environ['HOME']
-_REPO_DIR = os.environ.get('DOCUMENT_BASE', os.path.join(HOME, '.local', 'docs'))
+_REPO_DIR = os.environ.get('DOCUMENT_BASE')
+if not _REPO_DIR:
+    HOME = os.environ['HOME']
+    _REPO_DIR = os.path.join(HOME, '.local', 'docs')
+
 autoindex = AutoIndex(app, _REPO_DIR, add_url_rules=False)
 
 default_encoding = 'utf-8'
@@ -145,13 +148,12 @@ def render_source(content, lexer):
 @app.route('/', defaults={'path':'.'})
 @app.route('/<path:path>')
 def show_me_the_doc(path):
-    mdfile = path
-    abspath = os.path.join(_REPO_DIR, mdfile)
+    abspath = os.path.join(_REPO_DIR, path)
     if not os.path.exists(abspath):
         return '<h1>NOTHING TO SEE HERE</h1>', 404
 
     if os.path.isdir(abspath):
-        return autoindex.render_autoindex(path=mdfile, endpoint='.show_me_the_doc')
+        return autoindex.render_autoindex(path=path, endpoint='.show_me_the_doc')
 
     content = read_file(abspath)
     is_static = is_static_file(abspath)
