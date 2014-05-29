@@ -133,6 +133,8 @@ def is_static_file(path):
 
 def render_doc(content, render_func):
     article = render_func(content)
+    if type(article) == str:
+        article = article.decode('utf-8')
     return render_template('article.html', article=article)
 
 
@@ -176,5 +178,9 @@ def show_me_the_doc(path):
         send_file(abspath)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8100, debug=True, use_debugger=True)
+    import sys
+    port = 8100
+    if len(sys.argv) == 2:
+        port = int(sys.argv[1])
+    app.run(host='0.0.0.0', port=port, debug=True, use_debugger=True)
 
