@@ -15,11 +15,11 @@ import pygments.lexers.special
 import pygments.formatters
 import pygments.styles
 
-# import markdown2
 from docutils.core import publish_string as rst_publish_string
 from textile import textile
 from mediawiki import wiki2html
-import hoedown
+# import CommonMark
+import mistune
 
 app = Flask(__name__)
 _REPO_DIR = os.environ.get('DOCUMENT_BASE')
@@ -34,31 +34,48 @@ default_encoding = 'utf-8'
 pygments_style = pygments.styles.get_style_by_name('borland')
 pygments_html_formatter = pygments.formatters.HtmlFormatter(linenos=True, full=True, style=pygments_style)
 
-markdown_extensions = [
-    hoedown.EXT_AUTOLINK,
-    hoedown.EXT_FENCED_CODE,
-    hoedown.EXT_FOOTNOTES,
-    hoedown.EXT_TABLES,
-#    hoedown.SmartyPants,
-    hoedown.EXT_QUOTE,
-    hoedown.EXT_UNDERLINE,
-    #hoedown.HTML_TOC,
-    #hoedown.HTML_TOC_TREE,
-#    'code-friendly',
-#    'fenced-code-blocks',
-#    'footnotes'
-#    'header-ids',
-#    'metadata',
-#    'nofollow',
-#    'toc',
-#    'wiki-tables',
-]
+# markdown_extensions = [
+#     # hoedown.EXT_AUTOLINK,
+#     # hoedown.EXT_FENCED_CODE,
+#     # hoedown.EXT_FOOTNOTES,
+#     # hoedown.EXT_TABLES,
+# # #    hoedown.SmartyPants,
+#     # hoedown.EXT_QUOTE,
+#     # hoedown.EXT_UNDERLINE,
+#     # #hoedown.HTML_TOC,
+#     # #hoedown.HTML_TOC_TREE,
+# # #    'code-friendly',
+# # #    'fenced-code-blocks',
+# # #    'footnotes'
+# # #    'header-ids',
+# # #    'metadata',
+# # #    'nofollow',
+# # #    'toc',
+# # #    'wiki-tables',
+# ]
+# markdown_exts = [
+#     hoep.EXT_AUTOLINK,
+#     hoep.EXT_FENCED_CODE,
+#     hoep.EXT_FOOTNOTES,
+#     hoep.EXT_TABLES,
+#     hoep.EXT_QUOTE,
+#     hoep.EXT_UNDERLINE,
+# ]
 
-markdown = hoedown.Markdown(hoedown.HtmlRenderer(reduce(lambda a, b: a | b, markdown_extensions)))
+
+def bxor_all(l):
+    return reduce(lambda a, b: a|b, l)
+
+#markdown = hoep.Hoep(bxor_all(markdown_exts))
+#markdown = hoep.Hoep(hoep.EXT_FENCED_CODE)
+# markdown = hoedown.Markdown(hoedown.HtmlRenderer(reduce(lambda a, b: a | b, markdown_extensions)))
 
 def render_markdown(content):
     # return markdown2.markdown(content, extras=markdown_extensions)
-    return markdown.render(content)
+    # return markdown.render(content)
+    # ast = CommonMark.DocParser().parse(content)
+    # return CommonMark.HTMLRenderer().render(ast)
+    return mistune.markdown(content)
 
 def render_rst(content):
     return rst_publish_string(source=content, writer_name='html4css1')
