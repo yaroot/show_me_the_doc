@@ -15,11 +15,11 @@ import pygments.lexers.special
 import pygments.formatters
 import pygments.styles
 
-import markdown2
+# import markdown2
 from docutils.core import publish_string as rst_publish_string
 from textile import textile
 from mediawiki import wiki2html
-
+import hoedown
 
 app = Flask(__name__)
 _REPO_DIR = os.environ.get('DOCUMENT_BASE')
@@ -35,19 +35,30 @@ pygments_style = pygments.styles.get_style_by_name('borland')
 pygments_html_formatter = pygments.formatters.HtmlFormatter(linenos=True, full=True, style=pygments_style)
 
 markdown_extensions = [
-    'code-friendly',
-    'fenced-code-blocks',
-    'footnotes'
-    'header-ids',
-    'metadata',
-    'nofollow',
-    'smarty-pants',
-    'toc',
-    'wiki-tables',
+    hoedown.EXT_AUTOLINK,
+    hoedown.EXT_FENCED_CODE,
+    hoedown.EXT_FOOTNOTES,
+    hoedown.EXT_TABLES,
+#    hoedown.SmartyPants,
+    hoedown.EXT_QUOTE,
+    hoedown.EXT_UNDERLINE,
+    #hoedown.HTML_TOC,
+    #hoedown.HTML_TOC_TREE,
+#    'code-friendly',
+#    'fenced-code-blocks',
+#    'footnotes'
+#    'header-ids',
+#    'metadata',
+#    'nofollow',
+#    'toc',
+#    'wiki-tables',
 ]
 
+markdown = hoedown.Markdown(hoedown.HtmlRenderer(reduce(lambda a, b: a | b, markdown_extensions)))
+
 def render_markdown(content):
-    return markdown2.markdown(content, extras=markdown_extensions)
+    # return markdown2.markdown(content, extras=markdown_extensions)
+    return markdown.render(content)
 
 def render_rst(content):
     return rst_publish_string(source=content, writer_name='html4css1')
@@ -145,6 +156,12 @@ def render_source(content, lexer):
     return pygments.highlight(content, lexer, pygments_html_formatter)
 
 
+def render_plain_text(content):
+    resp = make_response(content)
+    resp.content_type = 'text/plain'
+    return resp
+
+
 @app.route('/', defaults={'path':'.'})
 @app.route('/<path:path>')
 def show_me_the_doc(path):
@@ -161,7 +178,7 @@ def show_me_the_doc(path):
     doc_render_func = get_doc_render_func(abspath)
     pygments_lexer = get_pygments_lexer(abspath, encoding=default_encoding)
 
-    should_render_raw = 'raw' in request.args
+    should_render_raw = 'raw' in request.args or 'r' in request.args
     is_unicode = type(content) == unicode
 
     if not pygments_lexer and is_unicode:
@@ -171,7 +188,12 @@ def show_me_the_doc(path):
         should_render_raw = True
 
     if should_render_raw:
-        return send_file(abspath)
+        if pygments_lexer is not None:
+            return render_source(content, pygments_lexer)
+        elif is_unicode:
+            return render_plain_text(content)
+        else:
+            return send_file(abspath)
     elif doc_render_func is not None:
         return render_doc(content, doc_render_func)
     elif pygments_lexer is not None:
