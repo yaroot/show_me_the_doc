@@ -70,6 +70,7 @@ def bxor_all(l):
 #markdown = hoep.Hoep(hoep.EXT_FENCED_CODE)
 # markdown = hoedown.Markdown(hoedown.HtmlRenderer(reduce(lambda a, b: a | b, markdown_extensions)))
 
+
 def render_markdown(content):
     # return markdown2.markdown(content, extras=markdown_extensions)
     # return markdown.render(content)
@@ -77,14 +78,18 @@ def render_markdown(content):
     # return CommonMark.HTMLRenderer().render(ast)
     return mistune.markdown(content)
 
+
 def render_rst(content):
     return rst_publish_string(source=content, writer_name='html4css1')
+
 
 def render_textile(content):
     return textile(content, html_type='html')
 
+
 def render_mediawiki(content):
     return wiki2html(content, True)
+
 
 doc_renderers = [
     {
@@ -116,18 +121,9 @@ def get_basename(path):
     return os.path.basename(path)
 
 
-def test_exts(path, exts):
-    ext = get_ext(path)
-    if ext is not None:
-        for e in exts:
-            if ext == e:
-                return True
-    return False
-
-
 def get_doc_render_func(path):
     for renderer in doc_renderers:
-        if test_exts(path.lower(), renderer['ext']):
+        if get_ext(path.lower()) in renderer['ext']:
             return renderer.get('render_func')
 
 
@@ -205,18 +201,14 @@ def show_me_the_doc(path):
         should_render_raw = True
 
     if should_render_raw:
-        if pygments_lexer is not None:
-            return render_source(content, pygments_lexer)
-        elif is_unicode:
-            return render_plain_text(content)
-        else:
-            return send_file(abspath)
-    elif doc_render_func is not None:
-        return render_doc(content, doc_render_func)
-    elif pygments_lexer is not None:
-        return render_source(content, pygments_lexer)
-    else:
-        send_file(abspath)
+        if is_static:           return send_file(abspath)
+        elif pygments_lexer:    return render_source(content, pygments_lexer)
+        elif is_unicode:        return render_plain_text(content)
+        else:                   return send_file(abspath)
+    elif doc_render_func:   return render_doc(content, doc_render_func)
+    elif pygments_lexer:    return render_source(content, pygments_lexer)
+    else:                   return send_file(abspath)
+
 
 if __name__ == '__main__':
     import sys
