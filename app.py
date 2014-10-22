@@ -206,7 +206,7 @@ def show_me_the_doc(path):
     else:                   return send_file(abspath)
 
 
-@app.route('/_static/pygments.css')
+@app.route('/static/pygments.css')
 def pygments_css():
     css_text = pygments_html_formatter.get_style_defs('.codehilite')
     resp = make_response(css_text)
