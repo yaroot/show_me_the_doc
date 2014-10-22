@@ -3,6 +3,8 @@ Description=Show me the doc
 
 [Service]
 ExecStart=/path/to/show_me_the_doc/start
+User=xxx
+Group=xxx
 
 [Install]
 WantedBy=multi-user.target
