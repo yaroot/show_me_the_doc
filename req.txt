@@ -1,9 +1,11 @@
 flask
 gunicorn
 flask-autoindex
-mistune
-# markdown2
+# mistune
+markdown2
 textile
 docutils
 mediawiki
 pygments
+pygments-style-github
+flask_bootstrap

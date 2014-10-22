@@ -8,6 +8,7 @@ import codecs
 
 from flask import Flask, request, make_response, render_template, send_file
 from flask.ext.autoindex import AutoIndex
+from flask_bootstrap import Bootstrap
 
 import pygments
 import pygments.lexers
@@ -19,9 +20,11 @@ from docutils.core import publish_string as rst_publish_string
 from textile import textile
 from mediawiki import wiki2html
 # import CommonMark
-import mistune
+# import mistune
+import markdown2
 
 app = Flask(__name__)
+Bootstrap(app)
 _REPO_DIR = os.environ.get('DOCUMENT_BASE')
 if not _REPO_DIR:
     HOME = os.environ['HOME']
@@ -31,28 +34,21 @@ autoindex = AutoIndex(app, _REPO_DIR, add_url_rules=False)
 
 default_encoding = 'utf-8'
 
-pygments_style = pygments.styles.get_style_by_name('borland')
+pygments_style = pygments.styles.get_style_by_name('github')
 pygments_html_formatter = pygments.formatters.HtmlFormatter(linenos=True, full=True, style=pygments_style)
 
-# markdown_extensions = [
-#     # hoedown.EXT_AUTOLINK,
-#     # hoedown.EXT_FENCED_CODE,
-#     # hoedown.EXT_FOOTNOTES,
-#     # hoedown.EXT_TABLES,
-# # #    hoedown.SmartyPants,
-#     # hoedown.EXT_QUOTE,
-#     # hoedown.EXT_UNDERLINE,
-#     # #hoedown.HTML_TOC,
-#     # #hoedown.HTML_TOC_TREE,
-# # #    'code-friendly',
-# # #    'fenced-code-blocks',
-# # #    'footnotes'
-# # #    'header-ids',
-# # #    'metadata',
-# # #    'nofollow',
-# # #    'toc',
-# # #    'wiki-tables',
-# ]
+markdown_extensions = [
+    'code-friendly',
+    'fenced-code-blocks',
+    'footnotes',
+    'nofollow',
+    'header-ids',
+    'metadata',
+    'toc',
+    'tables',
+    'wiki-tables',
+]
+
 # markdown_exts = [
 #     hoep.EXT_AUTOLINK,
 #     hoep.EXT_FENCED_CODE,
@@ -63,8 +59,8 @@ pygments_html_formatter = pygments.formatters.HtmlFormatter(linenos=True, full=T
 # ]
 
 
-def bxor_all(l):
-    return reduce(lambda a, b: a|b, l)
+#def bxor_all(l):
+#    return reduce(lambda a, b: a|b, l)
 
 #markdown = hoep.Hoep(bxor_all(markdown_exts))
 #markdown = hoep.Hoep(hoep.EXT_FENCED_CODE)
@@ -72,11 +68,11 @@ def bxor_all(l):
 
 
 def render_markdown(content):
-    # return markdown2.markdown(content, extras=markdown_extensions)
     # return markdown.render(content)
     # ast = CommonMark.DocParser().parse(content)
     # return CommonMark.HTMLRenderer().render(ast)
-    return mistune.markdown(content)
+    # return mistune.markdown(content)
+    return markdown2.markdown(content, extras=markdown_extensions)
 
 
 def render_rst(content):
@@ -208,6 +204,14 @@ def show_me_the_doc(path):
     elif doc_render_func:   return render_doc(content, doc_render_func)
     elif pygments_lexer:    return render_source(content, pygments_lexer)
     else:                   return send_file(abspath)
+
+
+@app.route('/_static/pygments.css')
+def pygments_css():
+    css_text = pygments_html_formatter.get_style_defs('.codehilite')
+    resp = make_response(css_text)
+    resp.mimetype = 'text/css'
+    return resp
 
 
 if __name__ == '__main__':
