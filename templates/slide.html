@@ -1,0 +1,43 @@
+{# vim: set ft=jinja: #}
+
+{% extends "article.html" %}
+
+{% block header %}
+<script src="http://cdn.staticfile.org/jquery/2.1.1-rc2/jquery.min.js"></script>
+<script src="http://cdn.staticfile.org/twitter-bootstrap/3.2.0/js/carousel.min.js"></script>
+{% endblock %}
+
+
+{% block content %}
+
+<div id="slide_div" class="carousel slide" data-ride="carousel">
+    <!-- Wrapper for slides -->
+    <div class="carousel-inner">
+        {% for s in slides %}
+        <div class="item">
+            {{ s | safe }}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block footer %}
+<script>
+    $('.carousel').carousel({
+        interval: false,
+        wrap: false,
+    })
+    $('.carousel>div>div').first().toggleClass('active')
+    $('.carousel').carousel(0)
+    $(window).keydown(function(event) {
+        if (event.keyCode == 37) { // left
+            $('.carousel').carousel('prev')
+        } else if (event.keyCode == 39) { //right
+            $('.carousel').carousel('next')
+        }
+    })
+</script>
+{% endblock %}

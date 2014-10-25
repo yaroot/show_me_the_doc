@@ -158,7 +158,7 @@ def render_doc(content, render_func):
     article = render_func(content)
     if type(article) == str:
         article = article.decode('utf-8')
-    return render_template('article.html', article=article)
+    return render_template('post.html', article=article)
 
 
 def render_source(content, lexer):
@@ -169,6 +169,12 @@ def render_plain_text(content):
     resp = make_response(content)
     resp.content_type = 'text/plain'
     return resp
+
+
+def render_md_slide(content):
+    html = render_markdown(content)
+    slides = filter(lambda x: not not x, html.split('<hr />'))
+    return render_template("slide.html", slides=slides)
 
 
 @app.route('/', defaults={'path':'.'})
@@ -190,13 +196,17 @@ def show_me_the_doc(path):
     should_render_raw = 'raw' in request.args or 'r' in request.args
     is_unicode = type(content) == unicode
 
+    is_slide = 'slide' in request.args
+
     if not pygments_lexer and is_unicode:
         pygments_lexer = pygments.lexers.special.TextLexer(encoding=default_encoding)
 
     if not is_unicode or is_static:
         should_render_raw = True
 
-    if should_render_raw:
+
+    if is_slide:                return render_md_slide(content)
+    elif should_render_raw:
         if is_static:           return send_file(abspath)
         elif pygments_lexer:    return render_source(content, pygments_lexer)
         elif is_unicode:        return render_plain_text(content)
