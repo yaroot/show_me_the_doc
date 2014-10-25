@@ -8,4 +8,3 @@ docutils
 mediawiki
 pygments
 pygments-style-github
-flask_bootstrap
