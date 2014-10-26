@@ -43,7 +43,7 @@ markdown_extensions = [
     'footnotes',
     'nofollow',
     'header-ids',
-    'metadata',
+    # 'metadata',
     'toc',
     'tables',
     'wiki-tables',
@@ -206,15 +206,19 @@ def show_me_the_doc(path):
 
     setattr(g, 'math', 'math' in request.args)
 
-    if is_slide:                return render_md_slide(content)
-    elif should_render_raw:
-        if is_static:           return send_file(abspath)
+    try:
+        if is_slide:                return render_md_slide(content)
+        elif should_render_raw:
+            if is_static:           return send_file(abspath)
+            elif pygments_lexer:    return render_source(content, pygments_lexer)
+            elif is_unicode:        return render_plain_text(content)
+            else:                   return send_file(abspath)
+        elif doc_render_func:   return render_doc(content, doc_render_func)
         elif pygments_lexer:    return render_source(content, pygments_lexer)
-        elif is_unicode:        return render_plain_text(content)
         else:                   return send_file(abspath)
-    elif doc_render_func:   return render_doc(content, doc_render_func)
-    elif pygments_lexer:    return render_source(content, pygments_lexer)
-    else:                   return send_file(abspath)
+    except Exception, e:
+        import traceback
+        return render_plain_text(traceback.format_exc())
 
 
 @app.route('/static/pygments.css')
