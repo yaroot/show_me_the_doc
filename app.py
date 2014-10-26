@@ -6,7 +6,7 @@ from __future__ import unicode_literals
 import os
 import codecs
 
-from flask import Flask, request, make_response, render_template, send_file
+from flask import Flask, request, make_response, render_template, send_file, g
 from flask.ext.autoindex import AutoIndex
 from flask_bootstrap import Bootstrap
 
@@ -204,6 +204,7 @@ def show_me_the_doc(path):
     if not is_unicode or is_static:
         should_render_raw = True
 
+    setattr(g, 'math', 'math' in request.args)
 
     if is_slide:                return render_md_slide(content)
     elif should_render_raw:
