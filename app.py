@@ -196,12 +196,14 @@ def show_me_the_doc(path):
     should_render_raw = 'raw' in request.args or 'r' in request.args
     is_unicode = type(content) == unicode
 
+    should_render_source = ('source' in request.args or 'referer' not in request.headers) and (pygments_lexer is not None)
+
     is_slide = 'slide' in request.args
 
     if not pygments_lexer and is_unicode:
         pygments_lexer = pygments.lexers.special.TextLexer(encoding=default_encoding)
 
-    if not is_unicode or is_static:
+    if not should_render_source and (not is_unicode or is_static):
         should_render_raw = True
 
     setattr(g, 'math', 'math' in request.args)
