@@ -34,7 +34,7 @@ autoindex = AutoIndex(app, _REPO_DIR, add_url_rules=False)
 
 default_encoding = 'utf-8'
 
-pygments_style = pygments.styles.get_style_by_name('github')
+pygments_style = pygments.styles.get_style_by_name('pastie')
 pygments_html_formatter = pygments.formatters.HtmlFormatter(linenos=True, full=True, style=pygments_style)
 
 markdown_extensions = [
