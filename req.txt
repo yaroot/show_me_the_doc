@@ -1,6 +1,6 @@
 flask
 gunicorn
-flask-autoindex
+# flask-autoindex
 # mistune
 markdown2
 textile

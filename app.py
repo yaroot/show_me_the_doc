@@ -3,11 +3,11 @@
 
 from __future__ import unicode_literals
 
+import re
 import os
 import codecs
 
 from flask import Flask, request, make_response, render_template, send_file, g
-from flask.ext.autoindex import AutoIndex
 from flask_bootstrap import Bootstrap
 
 import pygments
@@ -26,11 +26,11 @@ import markdown2
 app = Flask(__name__)
 Bootstrap(app)
 _REPO_DIR = os.environ.get('DOCUMENT_BASE')
+_DOC_BASE = os.environ.get('PUBLIC_DOC_BASE')
 if not _REPO_DIR:
-    HOME = os.environ['HOME']
-    _REPO_DIR = os.path.join(HOME, '.local', 'docs')
-
-autoindex = AutoIndex(app, _REPO_DIR, add_url_rules=False)
+    _REPO_DIR = os.path.join(os.environ['HOME'], '.local', 'docs')
+if not _DOC_BASE:
+    _DOC_BASE = os.path.join(os.environ['HOME'], 'public_html', 'docs')
 
 default_encoding = 'utf-8'
 
@@ -177,15 +177,62 @@ def render_md_slide(content):
     return render_template("slide.html", slides=slides)
 
 
-@app.route('/', defaults={'path':'.'})
+def parse_doc_prefix(host):
+    m = re.match(r'(.*)[.]local[.].*', host)
+    if m:
+        x, = m.groups()
+        return x
+
+
+def try_match_path(base, sec):
+    if not os.path.isdir(base):
+        return None
+    if os.path.exists(os.path.join(base, sec)):
+        return sec
+    for f in os.listdir(base):
+        if f.lower() == sec.lower():
+            return f
+
+
+def render_dir(full_path, rel_path):
+    files = os.listdir(full_path)
+    return render_template('dir.html', rel_path=rel_path, files=[
+        Path(os.path.join(full_path, f), rel_path)
+        for f in files
+    ])
+
+
+class Path(object):
+    def __init__(self, path, rel_path):
+        self.path = path
+        self.filename = os.path.basename(path)
+        self.uri = os.path.join('/', rel_path, self.filename)
+        self.is_dir = os.path.isdir(path)
+
+
+@app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-def show_me_the_doc(path):
+def index(path):
+    host = request.headers.get('Host')
+    if host is not None and '.local.' in host:
+        prefix = parse_doc_prefix(host)
+        if prefix is None:
+            return '<h1>NOTHING TO SEE HERE</h1>', 404
+        fixed_prefix = try_match_path(_DOC_BASE, prefix)
+        if not fixed_prefix:
+            return '<h1>NOTHING TO SEE HERE</h1>', 404
+        abspath = os.path.join(_DOC_BASE, fixed_prefix, path)
+        if os.path.isdir(abspath):
+            return render_dir(abspath, path)
+        else:
+            return send_file(abspath)
+
     abspath = os.path.join(_REPO_DIR, path)
     if not os.path.exists(abspath):
         return '<h1>NOTHING TO SEE HERE</h1>', 404
 
     if os.path.isdir(abspath):
-        return autoindex.render_autoindex(path=path, endpoint='.show_me_the_doc')
+        return render_dir(abspath, path)
 
     content = read_file(abspath)
     is_static = is_static_file(abspath)
