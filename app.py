@@ -189,13 +189,13 @@ def try_match_path(base, sec):
         return None
     if os.path.exists(os.path.join(base, sec)):
         return sec
-    for f in os.listdir(base):
+    for f in sorted(os.listdir(base)):
         if f.lower() == sec.lower():
             return f
 
 
 def render_dir(full_path, rel_path):
-    files = os.listdir(full_path)
+    files = sorted(os.listdir(full_path))
     return render_template('dir.html', rel_path=rel_path, files=[
         Path(os.path.join(full_path, f), rel_path)
         for f in files
