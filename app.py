@@ -177,23 +177,6 @@ def render_md_slide(content):
     return render_template("slide.html", slides=slides)
 
 
-def parse_doc_prefix(host):
-    m = re.match(r'(.*)[.]local[.].*', host)
-    if m:
-        x, = m.groups()
-        return x
-
-
-def try_match_path(base, sec):
-    if not os.path.isdir(base):
-        return None
-    if os.path.exists(os.path.join(base, sec)):
-        return sec
-    for f in sorted(os.listdir(base)):
-        if f.lower() == sec.lower():
-            return f
-
-
 def render_dir(full_path, rel_path):
     files = sorted(os.listdir(full_path))
     return render_template('dir.html', rel_path=rel_path, files=[
@@ -213,19 +196,6 @@ class Path(object):
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def index(path):
-    host = request.headers.get('Host')
-    if host is not None and '.local.' in host:
-        prefix = parse_doc_prefix(host)
-        if prefix is None:
-            return '<h1>NOTHING TO SEE HERE</h1>', 404
-        fixed_prefix = try_match_path(_DOC_BASE, prefix)
-        if not fixed_prefix:
-            return '<h1>NOTHING TO SEE HERE</h1>', 404
-        abspath = os.path.join(_DOC_BASE, fixed_prefix, path)
-        if os.path.isdir(abspath):
-            return render_dir(abspath, path)
-        else:
-            return send_file(abspath)
 
     abspath = os.path.join(_REPO_DIR, path)
     if not os.path.exists(abspath):
