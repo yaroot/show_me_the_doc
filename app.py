@@ -8,7 +8,7 @@ import os
 import codecs
 
 from flask import Flask, request, make_response, render_template, send_file, g
-from flask_bootstrap import Bootstrap
+#from flask_bootstrap import Bootstrap
 
 import pygments
 import pygments.lexers
@@ -24,7 +24,7 @@ from mediawiki import wiki2html
 import markdown2
 
 app = Flask(__name__)
-Bootstrap(app)
+#Bootstrap(app)
 _REPO_DIR = os.environ.get('DOCUMENT_BASE')
 _DOC_BASE = os.environ.get('PUBLIC_DOC_BASE')
 if not _REPO_DIR:
