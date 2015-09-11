@@ -7,4 +7,3 @@ textile
 docutils
 mediawiki
 pygments
-pygments-style-github
