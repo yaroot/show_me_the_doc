@@ -7,7 +7,7 @@
 {% block content %}
 
 {% for f in files %}
-<a href='{{ url_for('index', path=f.uri) }}'>{{ f.filename }}{% if f.is_dir %}/{% endif %}</a><br/>
+<a href='{{ url_for("index", input_path=f.uri) }}'>{{ f.filename }}{% if f.is_dir %}/{% endif %}</a><br/>
 {% endfor %}
 
 

@@ -3,9 +3,11 @@
 
 from __future__ import unicode_literals
 
-import re
 import os
 import codecs
+import zipfile
+import mimetypes
+from datetime import datetime, timedelta
 
 from flask import Flask, request, make_response, render_template, send_file, g
 #from flask_bootstrap import Bootstrap
@@ -185,6 +187,25 @@ def render_dir(full_path, rel_path):
     ])
 
 
+def render_zipfile(full_path, rel_path, req_path):
+    with zipfile.ZipFile(full_path) as f:
+        if not rel_path:
+            return render_template('dir.html', files=[
+                ZipFilePath(req_path, zf)
+                for zf in sorted(f.namelist())
+                if not zf.endswith('/')
+            ])
+        else:
+            with f.open(rel_path) as ff:
+                content = ff.read()
+            # print len(content)
+            resp = make_response(content)
+            mimetype = mimetypes.guess_type('http://example.org/%s' % rel_path)
+            resp.mimetype = mimetype[0] or 'application/octet-stream'
+            resp.expires = datetime.utcnow() + timedelta(seconds=100)
+            return resp
+
+
 class Path(object):
     def __init__(self, path, rel_path):
         self.path = path
@@ -193,16 +214,32 @@ class Path(object):
         self.is_dir = os.path.isdir(path)
 
 
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-def index(path):
+class ZipFilePath(object):
+    def __init__(self, basepath, filename):
+        self.uri = '%s:/%s' % (basepath, filename)
+        self.filename = filename
+        self.is_dir = False
 
-    abspath = os.path.join(_REPO_DIR, path)
+
+@app.route('/', defaults={'input_path': ''})
+@app.route('/<path:input_path>')
+def index(input_path):
+    if ':/' in input_path:
+        req_path, inner_path = input_path.split(':/', 1)
+    else:
+        req_path = input_path
+        inner_path = None
+    abspath = os.path.join(_REPO_DIR, req_path)
     if not os.path.exists(abspath):
         return '<h1>NOTHING TO SEE HERE</h1>', 404
 
     if os.path.isdir(abspath):
-        return render_dir(abspath, path)
+        return render_dir(abspath, req_path)
+
+    should_render_zipfile = req_path.endswith('.jar')
+
+    if should_render_zipfile:
+        return render_zipfile(abspath, inner_path, req_path)
 
     content = read_file(abspath)
     is_static = is_static_file(abspath)
