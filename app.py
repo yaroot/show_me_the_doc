@@ -9,7 +9,7 @@ import zipfile
 import mimetypes
 from datetime import datetime, timedelta
 
-from flask import Flask, request, make_response, render_template, send_file, g
+from flask import Flask, request, make_response, render_template, send_file, g, redirect
 #from flask_bootstrap import Bootstrap
 
 import pygments
@@ -198,7 +198,6 @@ def render_zipfile(full_path, rel_path, req_path):
         else:
             with f.open(rel_path) as ff:
                 content = ff.read()
-            # print len(content)
             resp = make_response(content)
             mimetype = mimetypes.guess_type('http://example.org/%s' % rel_path)
             resp.mimetype = mimetype[0] or 'application/octet-stream'
@@ -239,6 +238,8 @@ def index(input_path):
     should_render_zipfile = req_path.endswith('.jar')
 
     if should_render_zipfile:
+        if not inner_path:
+            return redirect('%s:/index.html' % req_path)
         return render_zipfile(abspath, inner_path, req_path)
 
     content = read_file(abspath)
