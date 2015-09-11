@@ -10,7 +10,6 @@ import mimetypes
 from datetime import datetime, timedelta
 
 from flask import Flask, request, make_response, render_template, send_file, g, redirect
-#from flask_bootstrap import Bootstrap
 
 import pygments
 import pygments.lexers
@@ -26,7 +25,6 @@ from mediawiki import wiki2html
 import markdown2
 
 app = Flask(__name__)
-#Bootstrap(app)
 _REPO_DIR = os.environ.get('DOCUMENT_BASE')
 _DOC_BASE = os.environ.get('PUBLIC_DOC_BASE')
 if not _REPO_DIR:
@@ -273,7 +271,7 @@ def index(input_path):
         elif doc_render_func:   return render_doc(content, doc_render_func)
         elif pygments_lexer:    return render_source(content, pygments_lexer)
         else:                   return send_file(abspath)
-    except Exception, e:
+    except Exception:
         import traceback
         return render_plain_text(traceback.format_exc())
 
