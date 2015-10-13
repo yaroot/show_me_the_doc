@@ -9,7 +9,7 @@ import zipfile
 import mimetypes
 from datetime import datetime, timedelta
 
-from flask import Flask, request, make_response, render_template, send_file, g, redirect
+from flask import Flask, request, make_response, render_template, send_file, g, redirect, send_from_directory
 
 import pygments
 import pygments.lexers
@@ -284,10 +284,15 @@ def pygments_css():
     return resp
 
 
+@app.route('/assets/<path:p>')
+def local_assets(p):
+    return send_from_directory('./assets', p)
+
+
 if __name__ == '__main__':
     import sys
     port = 8100
     if len(sys.argv) == 2:
         port = int(sys.argv[1])
-    app.run(host='0.0.0.0', port=port, debug=True, use_debugger=True)
+    app.run(host='127.0.0.1', port=port, debug=True, use_debugger=True)
 
