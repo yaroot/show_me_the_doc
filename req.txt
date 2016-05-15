@@ -2,7 +2,8 @@ flask
 gunicorn
 # flask-autoindex
 # mistune
-markdown2
+# markdown2
+markdown
 textile
 docutils
 mediawiki
