@@ -22,7 +22,8 @@ from textile import textile
 from mediawiki import wiki2html
 # import CommonMark
 # import mistune
-import markdown2
+# import markdown2
+import markdown
 
 app = Flask(__name__)
 _REPO_DIR = os.environ.get('DOCUMENT_BASE')
@@ -37,17 +38,29 @@ default_encoding = 'utf-8'
 pygments_style = pygments.styles.get_style_by_name('pastie')
 pygments_html_formatter = pygments.formatters.HtmlFormatter(linenos=True, full=True, style=pygments_style)
 
+
 markdown_extensions = [
-    'code-friendly',
-    'fenced-code-blocks',
-    'footnotes',
-    'nofollow',
-    'header-ids',
-    # 'metadata',
-    'toc',
-    'tables',
-    'wiki-tables',
+    'markdown.extensions.fenced_code',
+    'markdown.extensions.tables',
+    'markdown.extensions.toc',
+    'markdown.extensions.smarty',
+    'markdown.extensions.footnotes',
+    'markdown.extensions.headerid',
+    'markdown.extensions.codehilite',
+    'markdown.extensions.smart_strong',
 ]
+
+# markdown2_extensions = [
+#     'code-friendly',
+#     'fenced-code-blocks',
+#     'footnotes',
+#     'nofollow',
+#     'header-ids',
+#     # 'metadata',
+#     'toc',
+#     'tables',
+#     'wiki-tables',
+# ]
 
 # markdown_exts = [
 #     hoep.EXT_AUTOLINK,
@@ -59,11 +72,11 @@ markdown_extensions = [
 # ]
 
 
-#def bxor_all(l):
-#    return reduce(lambda a, b: a|b, l)
+# def bxor_all(l):
+#     return reduce(lambda a, b: a|b, l)
 
-#markdown = hoep.Hoep(bxor_all(markdown_exts))
-#markdown = hoep.Hoep(hoep.EXT_FENCED_CODE)
+# markdown = hoep.Hoep(bxor_all(markdown_exts))
+# markdown = hoep.Hoep(hoep.EXT_FENCED_CODE)
 # markdown = hoedown.Markdown(hoedown.HtmlRenderer(reduce(lambda a, b: a | b, markdown_extensions)))
 
 
@@ -72,7 +85,8 @@ def render_markdown(content):
     # ast = CommonMark.DocParser().parse(content)
     # return CommonMark.HTMLRenderer().render(ast)
     # return mistune.markdown(content)
-    return markdown2.markdown(content, extras=markdown_extensions)
+    # return markdown2.markdown(content, extras=markdown2_extensions)
+    return markdown.markdown(content, extensions=markdown_extensions)
 
 
 def render_rst(content):
