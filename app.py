@@ -1,8 +1,6 @@
 #!/usr/bin/env python2
 # encoding=utf-8
 
-from __future__ import unicode_literals
-
 import os
 import codecs
 import zipfile
@@ -19,7 +17,8 @@ import pygments.styles
 
 from docutils.core import publish_string as rst_publish_string
 from textile import textile
-from mediawiki import wiki2html
+# import mwparserfromhell
+# from mediawiki import wiki2html
 # import CommonMark
 # import mistune
 # import markdown2
@@ -97,8 +96,10 @@ def render_textile(content):
     return textile(content, html_type='html')
 
 
-def render_mediawiki(content):
-    return wiki2html(content, True)
+# def render_mediawiki(content):
+#     # return wiki2html(content, True)
+#     result = mwparserfromhell.parser.Parser().parse(content)
+#     return None
 
 
 doc_renderers = [
@@ -114,10 +115,10 @@ doc_renderers = [
         'ext': ['textile'],
         'render_func': render_textile,
     },
-    {
-        'ext': ['mediawiki', 'wiki'],
-        'render_func': render_mediawiki,
-    },
+    # {
+    #     'ext': ['mediawiki', 'wiki'],
+    #     'render_func': render_mediawiki,
+    # },
 ]
 
 
@@ -141,7 +142,7 @@ def get_pygments_lexer(path, **options):
     filename = get_basename(path)
     try:
         return pygments.lexers.get_lexer_for_filename(filename, **options)
-    except pygments.util.ClassNotFound, e:
+    except pygments.util.ClassNotFound:
         pass
 
 
