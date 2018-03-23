@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # encoding=utf-8
 
 import os
@@ -171,8 +171,8 @@ def is_static_file(path):
 
 def render_doc(content, render_func):
     article = render_func(content)
-    if type(article) == str:
-        article = article.decode('utf-8')
+    # if type(article) == str:
+    #     article = article.decode('utf-8')
     return render_template('post.html', article=article)
 
 
@@ -262,7 +262,7 @@ def index(input_path):
     pygments_lexer = get_pygments_lexer(abspath, encoding=default_encoding)
 
     should_render_raw = 'raw' in request.args or 'r' in request.args
-    is_unicode = type(content) == unicode
+    is_unicode = type(content) == str
 
     should_render_source = ('source' in request.args or 'referer' not in request.headers) and (pygments_lexer is not None)
 
