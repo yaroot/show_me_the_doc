@@ -44,7 +44,7 @@ markdown_extensions = [
     'markdown.extensions.toc',
     'markdown.extensions.smarty',
     'markdown.extensions.footnotes',
-    'markdown.extensions.headerid',
+    # 'markdown.extensions.headerid',
     'markdown.extensions.codehilite',
     'markdown.extensions.smart_strong',
 ]
