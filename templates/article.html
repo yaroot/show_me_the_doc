@@ -1,5 +1,4 @@
 {# vim: set ft=jinja: #}
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -19,21 +18,19 @@
             }
         </style>
 
-        <link href="/assets/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.0/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 
-        {% if g.math %}
-        <script type="text/x-mathjax-config">
+        <!-- script type="text/x-mathjax-config">
             MathJax.Hub.Config({
                 tex2jax: {
                     inlineMath: [['$','$'], ['\\(','\\)']],
                     processEscapes: true
                 }
             });
-        </script>
-        <script src="/assets/mathjax/2.7.0/MathJax.js?config=default"></script>
-        {# TODO switch to https://github.com/Khan/KaTeX #}
-        {# <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> #}
-        {% endif %}
+        </script -->
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.0.5/es5/tex-mml-chtml.js"></script>
+        <!-- https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js -->
 
         {% block header %}{% endblock %}
     </head>

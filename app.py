@@ -39,14 +39,13 @@ pygments_html_formatter = pygments.formatters.HtmlFormatter(linenos=True, full=T
 
 
 markdown_extensions = [
+    'markdown.extensions.codehilite',
     'markdown.extensions.fenced_code',
+    'markdown.extensions.footnotes',
+    'markdown.extensions.smarty',
     'markdown.extensions.tables',
     'markdown.extensions.toc',
-    'markdown.extensions.smarty',
-    'markdown.extensions.footnotes',
-    # 'markdown.extensions.headerid',
-    'markdown.extensions.codehilite',
-    'markdown.extensions.smart_strong',
+    'markdown.extensions.meta',
 ]
 
 # markdown2_extensions = [
