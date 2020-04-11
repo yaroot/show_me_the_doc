@@ -12,16 +12,11 @@ from flask import Flask, request, make_response, render_template, send_file, g, 
 import pygments
 import pygments.lexers
 import pygments.lexers.special
-import pygments.formatters
+from pygments.formatters.html import HtmlFormatter as PygmentsHtmlFormatter
 import pygments.styles
 
 from docutils.core import publish_string as rst_publish_string
 from textile import textile
-# import mwparserfromhell
-# from mediawiki import wiki2html
-# import CommonMark
-# import mistune
-# import markdown2
 import markdown
 
 app = Flask(__name__)
@@ -29,8 +24,11 @@ _REPO_DIR = os.path.abspath('./docs')
 
 default_encoding = 'utf-8'
 
-pygments_style = pygments.styles.get_style_by_name('pastie')
-pygments_html_formatter = pygments.formatters.HtmlFormatter(linenos=True, full=True, style=pygments_style)
+pygments_html_formatter = PygmentsHtmlFormatter(
+    linenos=True,
+    full=True,
+    style=(pygments.styles.get_style_by_name('pastie')),
+)
 
 
 markdown_extensions = [
@@ -43,47 +41,13 @@ markdown_extensions = [
     'markdown.extensions.meta',
 ]
 
-# markdown2_extensions = [
-#     'code-friendly',
-#     'fenced-code-blocks',
-#     'footnotes',
-#     'nofollow',
-#     'header-ids',
-#     # 'metadata',
-#     'toc',
-#     'tables',
-#     'wiki-tables',
-# ]
-
-# markdown_exts = [
-#     hoep.EXT_AUTOLINK,
-#     hoep.EXT_FENCED_CODE,
-#     hoep.EXT_FOOTNOTES,
-#     hoep.EXT_TABLES,
-#     hoep.EXT_QUOTE,
-#     hoep.EXT_UNDERLINE,
-# ]
-
-
-# def bxor_all(l):
-#     return reduce(lambda a, b: a|b, l)
-
-# markdown = hoep.Hoep(bxor_all(markdown_exts))
-# markdown = hoep.Hoep(hoep.EXT_FENCED_CODE)
-# markdown = hoedown.Markdown(hoedown.HtmlRenderer(reduce(lambda a, b: a | b, markdown_extensions)))
-
 
 def render_markdown(content):
-    # return markdown.render(content)
-    # ast = CommonMark.DocParser().parse(content)
-    # return CommonMark.HTMLRenderer().render(ast)
-    # return mistune.markdown(content)
-    # return markdown2.markdown(content, extras=markdown2_extensions)
     return markdown.markdown(content, extensions=markdown_extensions)
 
 
 def render_rst(content):
-    return rst_publish_string(source=content, writer_name='html4css1')
+    return rst_publish_string(source=content, writer_name='html5')
 
 
 def render_textile(content):
@@ -165,9 +129,10 @@ def is_static_file(path):
 
 def render_doc(content, render_func):
     article = render_func(content)
-    # if type(article) == str:
-    #     article = article.decode('utf-8')
-    return render_template('post.html', article=article)
+    if type(article) == str:
+        return render_template('post.html', article=article)
+    else:  # bytes
+        return article
 
 
 def render_source(content, lexer):
