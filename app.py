@@ -15,7 +15,7 @@ import pygments.lexers.special
 from pygments.formatters.html import HtmlFormatter as PygmentsHtmlFormatter
 import pygments.styles
 
-from docutils.core import publish_string as rst_publish_string
+from docutils.core import publish_string as rst_publish_string, publish_parts as rst_publish_parts
 from textile import textile
 import markdown
 
@@ -47,7 +47,10 @@ def render_markdown(content):
 
 
 def render_rst(content):
-    return rst_publish_string(source=content, writer_name='html5')
+    # return rst_publish_string(source=content, writer_name='html5')
+    a = rst_publish_parts(source=content, writer_name='html5')
+    # print(a.keys())
+    return a['body']
 
 
 def render_textile(content):
