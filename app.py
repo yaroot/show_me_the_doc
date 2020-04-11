@@ -298,11 +298,6 @@ def pygments_css():
     return resp
 
 
-@app.route('/assets/<path:p>')
-def local_assets(p):
-    return send_from_directory('./assets', p)
-
-
 if __name__ == '__main__':
     import sys
     port = 8100
