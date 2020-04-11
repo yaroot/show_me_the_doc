@@ -25,12 +25,7 @@ from textile import textile
 import markdown
 
 app = Flask(__name__)
-_REPO_DIR = os.environ.get('DOCUMENT_BASE')
-_DOC_BASE = os.environ.get('PUBLIC_DOC_BASE')
-if not _REPO_DIR:
-    _REPO_DIR = os.path.join(os.environ['HOME'], '.local', 'docs')
-if not _DOC_BASE:
-    _DOC_BASE = os.path.join(os.environ['HOME'], 'public_html', 'docs')
+_REPO_DIR = os.path.abspath('./docs')
 
 default_encoding = 'utf-8'
 
